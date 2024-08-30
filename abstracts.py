@@ -6,7 +6,7 @@ from urllib.parse import urlparse
 from bitcoinutils.keys import PublicKey
 from web3 import Web3
 
-from btc_transaction_utils import (
+from zbtc_utils import (
     get_simple_withdraw_tx,
     get_burned,
     get_deposit,
