@@ -8,7 +8,7 @@ from bitcoinutils.utils import to_satoshis
 from flask import Flask, request, jsonify
 from web3 import Web3
 
-from pyfrost.pyfrost.btc_transaction_utils import (
+from btc_transaction_utils import (
     get_taproot_address,
     broadcast_tx,
     get_utxos,
@@ -17,14 +17,14 @@ from pyfrost.pyfrost.btc_transaction_utils import (
     get_deposit,
     get_burned,
 )
-from pyfrost.pyfrost.crypto_utils import bytes_from_int
-from pyfrost.pyfrost.network.sa import SA
+from pyfrost.crypto_utils import bytes_from_int
+from pyfrost.network.sa import SA
 from abstracts import NodesInfo
 import logging
 import os
 import asyncio
 
-from pyfrost.zbtc.config import (
+from config import (
     FEE_AMOUNT,
     BTC_NETWORK,
     ZBTC_ADDRESS,
@@ -64,7 +64,7 @@ async def initialization(total_node_number: int) -> None:
         nonces[node_id] += nonces_response[node_id]["data"]
 
     # Retrieving DKGs:
-    dkg_file_path = "pyfrost/zbtc/dkgs.json"
+    dkg_file_path = "dkgs.json"
     with open(dkg_file_path, "r") as file:
         data = json.load(file)
 

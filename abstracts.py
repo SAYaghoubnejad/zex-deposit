@@ -6,13 +6,13 @@ from urllib.parse import urlparse
 from bitcoinutils.keys import PublicKey
 from web3 import Web3
 
-from pyfrost.pyfrost.btc_transaction_utils import (
+from btc_transaction_utils import (
     get_simple_withdraw_tx,
     get_burned,
     get_deposit,
     get_withdraw_tx,
 )
-from pyfrost.pyfrost.network.abstract import Validators, DataManager, NodesInfo as BaseNodeInfo
+from pyfrost.network.abstract import Validators, DataManager, NodesInfo as BaseNodeInfo
 from config import VALIDATED_IPS, ZBTC_ADDRESS, MPC_ADDRESS, DepositType
 from typing import Dict
 
@@ -23,8 +23,8 @@ import os
 class NodeDataManager(DataManager):
     def __init__(
         self,
-        dkg_keys_file="./pyfrost/zbtc/data/dkg_keys.json",
-        nonces_file="./pyfrost/zbtc/data/nonces.json",
+        dkg_keys_file="./data/dkg_keys.json",
+        nonces_file="./data/nonces.json",
     ) -> None:
         super().__init__()
         self.dkg_keys_file = dkg_keys_file

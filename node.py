@@ -3,15 +3,15 @@ import logging
 import sys
 
 from flask import Flask
-from pyfrost.pyfrost.network.node import Node
+from pyfrost.network.node import Node
 from abstracts import NodesInfo, NodeDataManager, NodeValidators
 from config import PRIVATE_KEY
 
 
 def run_node(node_id: int) -> None:
     data_manager = NodeDataManager(
-        f"./pyfrost/zbtc/data/dkg_keys-{node_id}.json",
-        f"./pyfrost/zbtc/data/nonces-{node_id}.json",
+        f"./data/dkg_keys-{node_id}.json",
+        f"./data/nonces-{node_id}.json",
     )
     nodes_info = NodesInfo()
     node = Node(

@@ -1,6 +1,6 @@
 import json
 
-from pyfrost.pyfrost.network.dkg import Dkg
+from pyfrost.network.dkg import Dkg
 from abstracts import NodesInfo
 import logging
 import time
