@@ -1,5 +1,6 @@
 import json
 
+from pyfrost.crypto_utils import is_y_even, code_to_pub
 from pyfrost.network.dkg import Dkg
 from abstracts import NodesInfo
 import logging
@@ -26,6 +27,11 @@ async def initiate_dkg(
     # Requesting DKG:
     now = timeit.default_timer()
     dkg_key = await dkg.request_dkg(threshold, party, dkg_type)
+    if dkg_type == "BTC":
+        is_even = is_y_even(code_to_pub(dkg_key["public_key"]))
+        while not is_even:
+            dkg_key = await dkg.request_dkg(threshold, party, dkg_type)
+            is_even = is_y_even(code_to_pub(dkg_key["public_key"]))
     then = timeit.default_timer()
 
     logging.info(f"Requesting DKG takes: {then - now} seconds.")
@@ -35,7 +41,7 @@ async def initiate_dkg(
     dkg_key["threshold"] = threshold
     dkg_key["number_of_nodes"] = n
 
-    dkg_file_path = "pyfrost/zbtc"
+    dkg_file_path = "."
     dkg_file_name = "dkgs.json"
     if not os.path.exists(f"{dkg_file_path}/{dkg_file_name}"):
         os.mkdir(dkg_file_path) if not os.path.exists(dkg_file_path) else None

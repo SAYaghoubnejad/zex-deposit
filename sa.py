@@ -1,6 +1,7 @@
 import json
 import sys
 
+import pyfrost
 from bitcoinutils.keys import PublicKey, P2wpkhAddress
 from bitcoinutils.setup import setup
 from bitcoinutils.transactions import TxWitnessInput
@@ -17,7 +18,7 @@ from zbtc_utils import (
     get_deposit,
     get_burned,
 )
-from pyfrost.crypto_utils import bytes_from_int
+from pyfrost.crypto_utils import bytes_from_int, code_to_pub, is_y_even, pub_compress
 from pyfrost.network.sa import SA
 from abstracts import NodesInfo
 import logging
@@ -58,7 +59,7 @@ async def initialization(total_node_number: int) -> None:
     all_nodes = nodes_info.get_all_nodes(total_node_number)
     sa = SA(nodes_info, default_timeout=50)
     nonces = {}
-    nonces_response = await sa.request_nonces(all_nodes)
+    nonces_response = await sa.request_nonces(all_nodes, number_of_nonces=30)
     for node_id in all_nodes:
         nonces.setdefault(node_id, [])
         nonces[node_id] += nonces_response[node_id]["data"]
@@ -74,10 +75,27 @@ async def initialization(total_node_number: int) -> None:
     logging.info(f'The Ethereum DKG is loaded: DKG is {eth_dkg_key["result"]}')
 
     mpc_public_key = mpc_dkg_key["public_key"]
+    logging.debug(f"MPC Public Key: {pub_compress(code_to_pub(mpc_public_key))}")
+
     mpc_address = get_taproot_address(mpc_public_key).to_string()
     eth_public_key = eth_dkg_key["public_key"]
     logging.info(f"MPC Wallet: {mpc_address}")
     logging.info(f"Ethereum Public Key: {eth_public_key}")
+
+
+def get_nonces(party, key_type="ETH", message=None):
+    is_even = False
+    while not is_even:
+        nonces_dict = {}
+        for node_id in party:
+            nonce = nonces[node_id].pop()
+            nonces_dict[node_id] = nonce
+        if key_type == "ETH":
+            return nonces_dict
+        assert message is not None, "str_message cannot be None"
+        aggregated_public_nonce = pyfrost.aggregate_nonce(message, nonces_dict)
+        is_even = is_y_even(aggregated_public_nonce)
+    return nonces_dict
 
 
 @app.route("/mint", methods=["POST"])
@@ -93,10 +111,7 @@ def mint():
         sa = SA(nodes_info, default_timeout=50)
 
         dkg_party = eth_dkg_key["party"]
-        nonces_dict = {}
-        for node_id in dkg_party:
-            nonce = nonces[node_id].pop()
-            nonces_dict[node_id] = nonce
+        nonces_dict = get_nonces(dkg_party)
 
         deposit = get_deposit(tx_hash, bitcoin_address, MPC_ADDRESS, DepositType.BRIDGE)
         msg = Web3.solidity_keccak(
@@ -122,6 +137,9 @@ def mint():
         sig = asyncio.run(
             sa.request_signature(eth_dkg_key, nonces_dict, data, dkg_party)
         )
+        assert (
+            sig["result"] == "SUCCESSFUL"
+        ), f"Signature failed: Signature status: {sig['result']}"
         logging.info(f"Minting siganture is: {sig}")
         return jsonify(sig)
     except Exception as e:
@@ -152,10 +170,7 @@ def send():
         )
 
         for tx_digest in tx_digests:
-            nonces_dict = {}
-            for node_id in dkg_party:
-                nonce = nonces[node_id].pop()
-                nonces_dict[node_id] = nonce
+            nonces_dict = get_nonces(dkg_party, "BTC", tx_digest.hex())
 
             data = {
                 "method": "get_simple_withdraw_tx",
@@ -172,6 +187,9 @@ def send():
             group_sign = asyncio.run(
                 sa.request_signature(mpc_dkg_key, nonces_dict, data, dkg_party)
             )
+            assert (
+                group_sign["result"] == "SUCCESSFUL"
+            ), f"Signature failed: Signature status: {group_sign['result']}"
             sig = bytes_from_int(
                 int(group_sign["public_nonce"]["x"], 16)
             ) + bytes_from_int(group_sign["signature"])
@@ -227,12 +245,9 @@ def burn():
             burner_address,
         )
 
-        nonces_dict = {}
-        for node_id in dkg_party:
-            nonce = nonces[node_id].pop()
-            nonces_dict[node_id] = nonce
-
         for tx_digest in tx_digests:
+            nonces_dict = get_nonces(dkg_party, "BTC", tx_digest.hex())
+
             data = {
                 "method": "get_withdraw_tx",
                 "data": {
@@ -246,6 +261,9 @@ def burn():
             group_sign = asyncio.run(
                 sa.request_signature(mpc_dkg_key, nonces_dict, data, dkg_party)
             )
+            assert (
+                group_sign["result"] == "SUCCESSFUL"
+            ), f"Signature failed: Signature status: {group_sign['result']}"
             sig = bytes_from_int(
                 int(group_sign["public_nonce"]["x"], 16)
             ) + bytes_from_int(group_sign["signature"])
