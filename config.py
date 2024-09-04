@@ -22,7 +22,7 @@ PRIVATE_KEYS = [
 PRIVATE_KEY = PRIVATE_KEYS[0]
 
 ZBTC_ADDRESS = "0x0323C15f879C8c8F024154BF5179c75e2eb9cAaD"
-FEE_AMOUNT = to_satoshis(0.00010000)
+FEE_AMOUNT = to_satoshis(0.00003000)
 
 BTC_NETWORK = "testnet"
 BASE_URL = "https://mempool.space/testnet4/api"

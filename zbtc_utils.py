@@ -103,7 +103,7 @@ def get_withdraw_tx(
     first_amount = sum(amounts)
 
     txout1 = TxOutput(send_amount, to_address.to_script_pub_key())
-    txout2 = TxOutput(first_amount - send_amount, from_address.to_script_pub_key())
+    txout2 = TxOutput(first_amount - send_amount - fee_amount, from_address.to_script_pub_key())
 
     first_script_pubkey = from_address.to_script_pub_key()
     utxos_script_pubkeys = [first_script_pubkey] * len(txins)
@@ -153,7 +153,7 @@ def get_utxos(bitcoin_address, desired_amount):
     for utxo in utxos:
         url = f"{BASE_URL}/tx/{utxo['txid']}"
         tx = requests.get(url).json()
-        op_pushnum = f"OP_PUSHNUM_{DepositType.WITHDRAW}"
+        op_pushnum = f"OP_PUSHNUM_{DepositType.WITHDRAW.value}"
         is_deposit_for_withdraw = any(
             [
                 out["scriptpubkey_type"] == "op_return"
