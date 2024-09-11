@@ -10,8 +10,8 @@ from bitcoinutils.setup import setup
 from bitcoinutils.constants import TAPROOT_SIGHASH_ALL
 
 import pyfrost.frost as frost
-from pyfrost.crypto_utils import code_to_pub
-from config import BASE_URL, BTC_NETWORK, DepositType
+from pyfrost.crypto_utils import code_to_pub, bytes_from_int
+from config import BASE_URL, BTC_NETWORK, DepositType, MPC_ADDRESS
 
 setup(BTC_NETWORK)
 
@@ -42,7 +42,7 @@ def get_burned(tx_hash, web3, contract_address):
                     "burner": decoded_log["args"]["burner"],
                     "amount": decoded_log["args"]["amount"],
                     "bitcoinAddress": decoded_log["args"]["bitcoinAddress"].hex(),
-                    "singleSpendTx": hex(decoded_log["args"]["singleSpendTx"])[2:],
+                    "singleSpendTx": bytes_from_int(decoded_log["args"]["singleSpendTx"]).hex(),
                 }
             except Exception:
                 continue
@@ -104,11 +104,13 @@ def get_withdraw_tx(
 
     txout1 = TxOutput(send_amount, to_address.to_script_pub_key())
     txout2 = TxOutput(first_amount - send_amount - fee_amount, from_address.to_script_pub_key())
-
+    outputs = [txout1]
+    if first_amount - send_amount - fee_amount > 0:
+        outputs.append(txout2)
     first_script_pubkey = from_address.to_script_pub_key()
     utxos_script_pubkeys = [first_script_pubkey] * len(txins)
 
-    tx = Transaction(txins, [txout1, txout2], has_segwit=True)
+    tx = Transaction(txins, outputs, has_segwit=True)
     tx_digests = [
         tx.get_transaction_taproot_digest(
             i, utxos_script_pubkeys, amounts, 0, sighash=TAPROOT_SIGHASH_ALL
@@ -133,8 +135,10 @@ def get_simple_withdraw_tx(from_address, utxos, to_address, send_amount, fee_amo
     txout2 = TxOutput(
         first_amount - send_amount - fee_amount, from_address.to_script_pub_key()
     )
-
-    tx = Transaction(txins, [txout1, txout2], has_segwit=True)
+    outputs = [txout1]
+    if first_amount - send_amount - fee_amount > 0:
+        outputs.append(txout2)
+    tx = Transaction(txins, outputs, has_segwit=True)
     tx_digests = [
         tx.get_transaction_taproot_digest(
             i, utxos_script_pubkeys, amounts, 0, sighash=TAPROOT_SIGHASH_ALL
@@ -157,7 +161,7 @@ def get_utxos(bitcoin_address, desired_amount):
         is_deposit_for_withdraw = any(
             [
                 out["scriptpubkey_type"] == "op_return"
-                and op_pushnum in out["scriptpubkey_asm"]
+                and op_pushnum in out["scriptpubkey_asm"] and bitcoin_address == MPC_ADDRESS
                 for out in tx["vout"]
             ]
         )

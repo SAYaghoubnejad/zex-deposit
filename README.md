@@ -12,7 +12,7 @@ The goal of this project is to provide a decentralized solution, secured by [Eig
 $ git clone https://github.com/SAYaghoubnejad/zbtc.git
 $ virtualenv -p python3.10 venv
 $ source venv/bin/activate
-(venv) $ pip install git+https://github.com/SAYaghoubnejad/pyfrost.git@develop   
+(venv) $ pip install -r requirements.txt
 ```
 
 **Note:** Python version `3.10` or above is required.
@@ -64,7 +64,7 @@ This project provides two main functionalities:
    - Next, send a request to the Signature Aggregator (SA) to ask for a signature:
 
    ```bash
-   $ curl -X POST http://localhost:8000/mint -H "Content-Type: application/json" -d '{"tx_hash": [hash of the deposit transaction], "public_key": [your Bitcoin wallet]}'
+   $ curl -X POST http://localhost:8000/mint -H "Content-Type: application/json" -d '{"tx_hash": [hash of the deposit transaction], "bitcoin_wallet": [your Bitcoin wallet]}'
    ```
 
    - Once you receive the signature, you can mint ZBTC. The procedure is illustrated in the following diagram:

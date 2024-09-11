@@ -1,6 +1,6 @@
 import json
 
-from pyfrost.crypto_utils import is_y_even, code_to_pub
+from pyfrost.crypto_utils import is_y_even, code_to_pub, Half_N
 from pyfrost.network.dkg import Dkg
 from abstracts import NodesInfo
 import logging
@@ -32,6 +32,11 @@ async def initiate_dkg(
         while not is_even:
             dkg_key = await dkg.request_dkg(threshold, party, dkg_type)
             is_even = is_y_even(code_to_pub(dkg_key["public_key"]))
+    elif dkg_type == "ETH":
+        is_gt_halfq = code_to_pub(dkg_key["public_key"]).x < Half_N
+        while not is_gt_halfq:
+            dkg_key = await dkg.request_dkg(threshold, party, dkg_type)
+            is_gt_halfq = code_to_pub(dkg_key["public_key"]).x < Half_N
     then = timeit.default_timer()
 
     logging.info(f"Requesting DKG takes: {then - now} seconds.")

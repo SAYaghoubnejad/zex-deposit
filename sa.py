@@ -104,7 +104,7 @@ def mint():
         # Extracting fee and tx_hash and public_key_hex from the request body
         data = request.json
         tx_hash = data["tx_hash"]
-        bitcoin_address = P2wpkhAddress(data["public_key"]).to_string()
+        bitcoin_address = P2wpkhAddress(data["bitcoin_wallet"]).to_string()
         logging.info(f"Minting for {bitcoin_address} with hash {tx_hash}")
 
         nodes_info = NodesInfo()
@@ -121,7 +121,7 @@ def mint():
                 deposit["amount"],
                 Web3.to_checksum_address(deposit["eth_address"]),
             ],
-        ).hex()
+        ).hex().replace("0x", "")
 
         data = {
             "method": "mint",

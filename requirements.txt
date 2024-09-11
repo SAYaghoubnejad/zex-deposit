@@ -1,0 +1,2 @@
+web3==6.19.0
+git+https://github.com/zellular-xyz/pyfrost.git@develop

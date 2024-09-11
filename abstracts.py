@@ -163,7 +163,7 @@ class NodeValidators(Validators):
                     deposit["amount"],
                     Web3.to_checksum_address(deposit["eth_address"]),
                 ],
-            ).hex()
+            ).hex().replace("0x", "")
             if (
                 msg == message_hash
                 and int(tx_hash, 16) == int(deposit["tx"], 16)
