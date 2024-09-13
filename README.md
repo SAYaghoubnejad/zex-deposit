@@ -6,16 +6,48 @@ The goal of this project is to provide a decentralized solution, secured by [Eig
 
 ---
 
-## Setup Instructions
+## Setup Environment
 
+To activate the Python virtual environment and install required packages, run:
 ```bash
 $ git clone https://github.com/SAYaghoubnejad/zbtc.git
 $ virtualenv -p python3.10 venv
 $ source venv/bin/activate
 (venv) $ pip install -r requirements.txt
 ```
-
 **Note:** Python version `3.10` or above is required.
+
+
+Next, set up the `.env` file using the provided `.env.example` as a reference:
+```bash
+$ cp .env.example .env
+```
+The following environment variables should be set in the .env file:
+- **Path to the file containing validated IP addresses to request dkg and signature:**
+  ```
+  ZBTC_VALIDATED_IPS=./validated_ips.json
+  ```
+  Sample of `validated_ips.json` file: 
+  ```
+  ["127.0.0.1","26.23.104.11"]
+  ```
+
+- **Private key for the ZBTC node (in integer format):**
+  ```
+  ZBTC_PRIVATE_KEY=94337664340063690438010829915800780946232589158282044690319564900000952004167
+  ```
+
+- **ZBTC smart contract address:**
+  ```
+  ZBTC_CONTRACT_ADDRESS=0x0323C15f879C8c8F024154BF5179c75e2eb9cAaD
+  ```
+
+- **Bitcoin MPC (Multi-Party Computation) address:**
+  ```
+  ZBTC_MPC_ADDRESS=tb1p0wm4lp4enjz47y7qzne288gj9keffed58mmjz7exr0wlw02duq3ssw7y20
+  ```
+
+
 
 ---
 

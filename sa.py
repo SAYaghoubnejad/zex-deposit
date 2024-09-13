@@ -28,7 +28,7 @@ import asyncio
 from config import (
     FEE_AMOUNT,
     BTC_NETWORK,
-    ZBTC_ADDRESS,
+    ZBTC_CONTRACT_ADDRESS,
     MPC_ADDRESS,
     DepositType,
 )
@@ -221,7 +221,7 @@ def burn():
         sa = SA(nodes_info, default_timeout=50)
         dkg_party = mpc_dkg_key["party"]
 
-        burned = get_burned(tx_hash, web3, ZBTC_ADDRESS)
+        burned = get_burned(tx_hash, web3, ZBTC_CONTRACT_ADDRESS)
         logging.debug(f"Burn Info: {burned}")
         send_amount = burned["amount"]
         single_spend_txid = burned["singleSpendTx"]

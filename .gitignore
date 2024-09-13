@@ -6,3 +6,4 @@ e-venv/
 __pycache__/
 logs/
 temp/
+.env
