@@ -3,39 +3,7 @@
 
 Zellular BTC is a decentralized bridge from Bitcoin network to EVM-compatible chains hosted on eigenlayer and secured via resktaing. It uses [FROST](https://eprint.iacr.org/2020/852.pdf) protocol to enable EigenLayer nodes own an MPC wallet in a decentralized way using Schnorr Threshold Signatures.
 
-## Functionalities
-
-This project provides two main functionalities:
-
-### Deposit BTC and Mint ZBTC
-
-To bridge BTC to an EVM-based network, follow these steps:
-
-- Transfer the desired amount of BTC to the MPC wallet.
-- Send a request to the Signature Aggregator (SA) to ask for a signature:
-    ```bash
-   curl -X POST http://localhost:8000/mint -d '{"tx_hash": [deposit-tx-hash]' -H "Content-Type: application/json"
-    ```
-
-<div align="center" id="Components">
-    <img src="imeges/btc2eth.png" alt="Bridge from BTC to EVM-based Network" width=600>
-    <p><i><strong>Figure 1:</strong> This figure illustrates the process of bridging BTC from the Bitcoin network to an EVM-based network.</i></p>
-</div>
-
-
-### Burn ZBTC and Withdraw BTC
-
-To bridge BTC back to the Bitcoin network:
-- Deposit a negligible amount of BTC to the MPC wallet. The hash of this tx is used to prevent replay attack. The extra amount deposited here will be returned to you when you withdraw your BTC.
-- Burn ZBTC on the EVM-based network by providing the hash of above tx.
-- Submit a withdrawal request using the following command:
-    ```bash
-    curl -X POST http://localhost:8000/burn -d '{"tx_hash": [burn-tx-hash]}' -H "Content-Type: application/json"
-    ```
-<div align="center" id="Components">
-    <img src="imeges/eth2btc.png" alt="Bridge from EVM-based to BTC Network"  width=900>
-    <p><i><strong>Figure 2:</strong> This figure illustrates the process of bridging BTC from an EVM-based network back to the Bitcoin network.</i></p>
-</div>
+[This tutorial](/wiki/How-to-Use-ZBTC) will guide you through using the PoC version of ZBTC on the EigenLayer Holesky testnet to bridge BTC from Bitcoin testnet3 to the Ethereum Holesky test network and back.
 
 ## Setup
 
