@@ -3,7 +3,7 @@
 
 Zellular BTC is a decentralized bridge from Bitcoin network to EVM-compatible chains hosted on eigenlayer and secured via resktaing. It uses [FROST](https://eprint.iacr.org/2020/852.pdf) protocol to enable EigenLayer nodes own an MPC wallet in a decentralized way using Schnorr Threshold Signatures.
 
-[This tutorial](/wiki/How-to-Use-ZBTC) will guide you through using the PoC version of ZBTC on the EigenLayer Holesky testnet to bridge BTC from Bitcoin testnet3 to the Ethereum Holesky test network and back.
+This [tutorial](https://github.com/zellular-xyz/zbtc/wiki/How-to-Use-ZBTC) will guide you through using the PoC version of ZBTC on the EigenLayer Holesky testnet to bridge BTC from Bitcoin testnet3 to the Ethereum Holesky test network and back.
 
 ## Setup
 
