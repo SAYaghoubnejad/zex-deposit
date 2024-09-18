@@ -47,13 +47,13 @@ $ python node.py
 Next, to initiate a Distributed Key Generation (DKG) for the MPC wallet, run:
 
 ```bash
-$ python dkg.py [threshold] [n] BTC mpc_wallet 
+$ python dkg.py [threshold] BTC mpc_wallet 
 ```
 
 To set up a DKG for generating signatures for the EVM-side contract, use:
 
 ```bash
-$ python dkg.py [threshold] [n] ETH ethereum 
+$ python dkg.py [threshold] ETH ethereum 
 ```
 
 To run the signature aggregator, which acts as a client for the user, run:

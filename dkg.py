@@ -13,7 +13,7 @@ import asyncio
 
 
 async def initiate_dkg(
-    threshold: int, n: int, dkg_type: str, dkg_name: any
+    threshold: int, dkg_type: str, dkg_name: any
 ) -> None:
     nodes_info = NodesInfo()
     all_nodes = nodes_info.get_all_nodes()
@@ -22,7 +22,7 @@ async def initiate_dkg(
     # Random party selection:
     seed = int(time.time())
     random.seed(seed)
-    party = random.sample(all_nodes, n)
+    party = random.sample(all_nodes, len(all_nodes))
 
     # Requesting DKG:
     now = timeit.default_timer()
@@ -83,14 +83,13 @@ if __name__ == "__main__":
     sys.set_int_max_str_digits(0)
 
     dkg_threshold = int(sys.argv[1])
-    num_parties = int(sys.argv[2])
-    dkg_type = sys.argv[3]
-    dkg_name = sys.argv[4]
+    dkg_type = sys.argv[2]
+    dkg_name = sys.argv[3]
 
     try:
         asyncio.run(
             initiate_dkg(
-                dkg_threshold, num_parties, dkg_type, dkg_name
+                dkg_threshold, dkg_type, dkg_name
             )
         )
     except KeyboardInterrupt:
