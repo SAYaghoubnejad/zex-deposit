@@ -19,23 +19,19 @@ async def initiate_dkg(
     all_nodes = nodes_info.get_all_nodes()
     dkg = Dkg(nodes_info, default_timeout=50)
 
-    # Random party selection:
-    seed = int(time.time())
-    random.seed(seed)
-    party = random.sample(all_nodes, len(all_nodes))
 
     # Requesting DKG:
     now = timeit.default_timer()
-    dkg_key = await dkg.request_dkg(threshold, party, dkg_type)
+    dkg_key = await dkg.request_dkg(threshold, all_nodes, dkg_type)
     if dkg_type == "BTC":
         is_even = is_y_even(code_to_pub(dkg_key["public_key"]))
         while not is_even:
-            dkg_key = await dkg.request_dkg(threshold, party, dkg_type)
+            dkg_key = await dkg.request_dkg(threshold, all_nodes, dkg_type)
             is_even = is_y_even(code_to_pub(dkg_key["public_key"]))
     elif dkg_type == "ETH":
         is_gt_halfq = code_to_pub(dkg_key["public_key"]).x < Half_N
         while not is_gt_halfq:
-            dkg_key = await dkg.request_dkg(threshold, party, dkg_type)
+            dkg_key = await dkg.request_dkg(threshold, all_nodes, dkg_type)
             is_gt_halfq = code_to_pub(dkg_key["public_key"]).x < Half_N
     then = timeit.default_timer()
 
@@ -44,7 +40,6 @@ async def initiate_dkg(
 
     logging.info(f"DKG key: {dkg_key}")
     dkg_key["threshold"] = threshold
-    dkg_key["number_of_nodes"] = n
 
     dkg_file_path = "."
     dkg_file_name = "dkgs.json"

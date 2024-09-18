@@ -29,7 +29,7 @@ def run_node(node_id: int) -> None:
     parsed_url = urlparse(node_info["socket"])
     app.run(
         host="0.0.0.0",
-        port=int(parsed_url.port)+1,
+        port=int(parsed_url.port),
         debug=False,
         threaded=True,
         use_reloader=False,
