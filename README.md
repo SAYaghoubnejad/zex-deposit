@@ -29,17 +29,26 @@ $ cp .env.example .env
 Then modify the `.env` file with the appropriate parameters:
 
 ```
-# Path to the file containing validated IP addresses to request dkg and signature:
-ZBTC_VALIDATED_IPS=./validated_ips.json
+# File path of the encrypted ECDSA key used for the ZBTC node private key.
+ZBTC_ECDSA_KEY_FILE=[home-or-path-to-keys]/.eigenlayer/operator_keys/zbtc.ecdsa.key.json
 
-# Private key for the ZBTC node (in integer format)
-ZBTC_PRIVATE_KEY=94337664340063690438010829915800780946232589158282044690319564900000952004167
+# Password used to decrypt the ECDSA key file.
+ZBTC_ECDSA_KEY_PASSWORD=
 
-# ZBTC smart contract address
+# ZBTC smart contract address on the blockchain.
 ZBTC_CONTRACT_ADDRESS=0x0323C15f879C8c8F024154BF5179c75e2eb9cAaD
 
-# Bitcoin MPC (Multi-Party Computation) address
-ZBTC_MPC_ADDRESS=tb1p0wm4lp4enjz47y7qzne288gj9keffed58mmjz7exr0wlw02duq3ssw7y20
+# Bitcoin network being used for ZBTC (e.g., testnet, mainnet).
+ZBTC_BTC_NETWORK=testnet
+
+# URL of the RPC endpoint for interacting with the Bitcoin network.
+ZBTC_RPC_URL=https://mempool.space/testnet/api
+
+# Path or list containing validated IP addresses allowed to request ZBTC node endpoints.
+ZBTC_VALIDATED_IPS=["127.0.0.1","26.23.104.11"]
+
+# Fee amount to be charged for each ZBTC transaction, specified in satoshis.
+ZBTC_FEE_AMOUNT=3000 
 ```
 
 ## Run
@@ -47,7 +56,7 @@ ZBTC_MPC_ADDRESS=tb1p0wm4lp4enjz47y7qzne288gj9keffed58mmjz7exr0wlw02duq3ssw7y20
 To run nodes, execute the following command:
 
 ```bash
-$ python node.py [node_id]
+$ python node.py
 ```
 
 Next, to initiate a Distributed Key Generation (DKG) for the MPC wallet, run:

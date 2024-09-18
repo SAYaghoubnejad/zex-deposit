@@ -143,7 +143,7 @@ def mint():
         logging.info(f"Minting siganture is: {sig}")
         return jsonify(sig)
     except Exception as e:
-        logging.error(f"Error in burn process: {str(e)}", exc_info=True)
+        logging.error(f"Error in mint process: {str(e)}", exc_info=True)
         return jsonify({"status": "error", "message": str(e)}), 500
 
 

@@ -3,6 +3,7 @@ import threading
 import time
 import json
 import os
+from urllib.parse import urlparse
 import requests
 
 from bitcoinutils.keys import PublicKey
@@ -15,7 +16,7 @@ from zbtc_utils import (
     get_withdraw_tx,
 )
 from pyfrost.network.abstract import Validators, DataManager, NodesInfo as BaseNodeInfo
-from config import VALIDATED_IPS, ZBTC_CONTRACT_ADDRESS, MPC_ADDRESS, DepositType
+from config import VALIDATED_IPS, ZBTC_CONTRACT_ADDRESS, MPC_ADDRESS, DepositType, generate_node_id
 from typing import Dict
 
 
@@ -58,6 +59,10 @@ class NodeDataManager(DataManager):
             self._save_data(self.nonces_file, self.__nonces)
 
     def set_key(self, key, value) -> None:
+        for dkg_id, dkg_data in list(self.__dkg_keys.items()):
+            if dkg_data["key_type"] == value["key_type"]:
+                del self.__dkg_keys[dkg_id]
+                break
         self.__dkg_keys[key] = value
         self._save_data(self.dkg_keys_file, self.__dkg_keys)
 
@@ -228,17 +233,18 @@ class NodesInfo(BaseNodeInfo):
     def _convert_operators_to_nodes(self, operators):
         nodes = {}
         for operator in operators:
-            
+            parsed_url = urlparse(operator["socket"])
+            zbtc_socket = f"http://{parsed_url.hostname}:{int(parsed_url.port) + 1}"
             node_info = {
                 "public_key": operator["id"],
                 "pubkeyG1_X": operator["pubkeyG1_X"],
                 "pubkeyG1_Y": operator["pubkeyG1_Y"],
                 "pubkeyG2_X": operator["pubkeyG2_X"],
                 "pubkeyG2_Y": operator["pubkeyG2_Y"],
-                "socket": operator["socket"],
+                "socket": zbtc_socket,
                 "stake": operator["stake"],
             }
-            nodes[str(int(operator["operatorId"], 16))] = node_info
+            nodes[str(generate_node_id(operator["id"]))] = node_info
         return nodes
 
     def _sync_periodically(self, interval):

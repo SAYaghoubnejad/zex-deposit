@@ -1,17 +1,18 @@
 import json
 import secrets
 import string
+import hashlib
 
 import requests
-from bitcoinutils.keys import P2trAddress, P2wpkhAddress, PublicKey, PrivateKey
+from bitcoinutils.keys import P2trAddress, P2wpkhAddress, PrivateKey
 from bitcoinutils.transactions import Transaction, TxInput, TxOutput, TxWitnessInput
 from bitcoinutils.script import Script
 from bitcoinutils.setup import setup
 from bitcoinutils.constants import TAPROOT_SIGHASH_ALL
 
 import pyfrost.frost as frost
-from pyfrost.crypto_utils import code_to_pub, bytes_from_int
-from config import BASE_URL, BTC_NETWORK, DepositType, MPC_ADDRESS
+from pyfrost.crypto_utils import bytes_from_int
+from config import BASE_URL, BTC_NETWORK, DepositType, MPC_ADDRESS, get_taproot_address
 
 setup(BTC_NETWORK)
 
@@ -50,15 +51,7 @@ def get_burned(tx_hash, web3, contract_address):
     return None
 
 
-def get_taproot_address(public_key):
-    public_key = code_to_pub(public_key)
-    x_hex = hex(public_key.x)[2:].zfill(64)
-    y_hex = hex(public_key.y)[2:].zfill(64)
-    prefix = "02" if int(y_hex, 16) % 2 == 0 else "03"
-    compressed_pubkey = prefix + x_hex
-    public_key = PublicKey(compressed_pubkey)
-    taproot_address = public_key.get_taproot_address()
-    return taproot_address
+
 
 
 def get_nonces(party):

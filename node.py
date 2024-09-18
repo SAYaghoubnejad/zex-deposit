@@ -6,13 +6,13 @@ from flask import Flask
 from urllib.parse import urlparse
 from pyfrost.network.node import Node
 from abstracts import NodesInfo, NodeDataManager, NodeValidators
-from config import PRIVATE_KEY
+from config import PRIVATE_KEY, NODE_ID
 
 
 def run_node(node_id: int) -> None:
     data_manager = NodeDataManager(
-        f"./data/dkg_keys-{node_id}.json",
-        f"./data/nonces-{node_id}.json",
+        f"dkg_keys.json",
+        f"nonces.json",
     )
     nodes_info = NodesInfo()
     node = Node(
@@ -37,9 +37,8 @@ def run_node(node_id: int) -> None:
 
 
 if __name__ == "__main__":
-    node_id = int(sys.argv[1], 16)
     file_path = "logs"
-    file_name = f"node{node_id}.log"
+    file_name = f"node{NODE_ID}.log"
     log_formatter = logging.Formatter(
         "%(asctime)s - %(message)s",
     )
@@ -58,6 +57,6 @@ if __name__ == "__main__":
     sys.set_int_max_str_digits(0)
 
     try:
-        run_node(node_id)
+        run_node(NODE_ID)
     except KeyboardInterrupt:
         pass
