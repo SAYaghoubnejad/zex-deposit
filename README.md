@@ -34,21 +34,6 @@ ZBTC_ECDSA_KEY_FILE=[home-or-path-to-keys]/.eigenlayer/operator_keys/zbtc.ecdsa.
 
 # Password used to decrypt the ECDSA key file.
 ZBTC_ECDSA_KEY_PASSWORD=
-
-# ZBTC smart contract address on the blockchain.
-ZBTC_CONTRACT_ADDRESS=0x0323C15f879C8c8F024154BF5179c75e2eb9cAaD
-
-# Bitcoin network being used for ZBTC (e.g., testnet, mainnet).
-ZBTC_BTC_NETWORK=testnet
-
-# URL of the RPC endpoint for interacting with the Bitcoin network.
-ZBTC_RPC_URL=https://mempool.space/testnet/api
-
-# Path or list containing validated IP addresses allowed to request ZBTC node endpoints.
-ZBTC_VALIDATED_IPS=["127.0.0.1","26.23.104.11"]
-
-# Fee amount to be charged for each ZBTC transaction, specified in satoshis.
-ZBTC_FEE_AMOUNT=3000 
 ```
 
 ## Run
@@ -62,17 +47,17 @@ $ python node.py
 Next, to initiate a Distributed Key Generation (DKG) for the MPC wallet, run:
 
 ```bash
-$ python dkg.py [number of nodes] [threshold] [n] BTC mpc_wallet 
+$ python dkg.py [threshold] [n] BTC mpc_wallet 
 ```
 
 To set up a DKG for generating signatures for the EVM-side contract, use:
 
 ```bash
-$ python dkg.py [number of nodes] [threshold] [n] ETH ethereum 
+$ python dkg.py [threshold] [n] ETH ethereum 
 ```
 
 To run the signature aggregator, which acts as a client for the user, run:
 
 ```bash
-$ python sa.py [number of nodes]
+$ python sa.py
 ```

@@ -47,7 +47,7 @@ eth_public_key = None
 nonces = {}
 
 
-async def initialization(total_node_number: int) -> None:
+async def initialization() -> None:
     global mpc_dkg_key
     global eth_dkg_key
     global mpc_address
@@ -56,7 +56,7 @@ async def initialization(total_node_number: int) -> None:
     global nonces
 
     nodes_info = NodesInfo()
-    all_nodes = nodes_info.get_all_nodes(total_node_number)
+    all_nodes = nodes_info.get_all_nodes()
     sa = SA(nodes_info, default_timeout=50)
     nonces = {}
     nonces_response = await sa.request_nonces(all_nodes, number_of_nonces=30)
@@ -303,7 +303,6 @@ if __name__ == "__main__":
     root_logger.setLevel(logging.DEBUG)
 
     sys.set_int_max_str_digits(0)
-    total_node_number = int(sys.argv[1])
-    asyncio.run(initialization(total_node_number))
+    asyncio.run(initialization())
     logging.info("Initialization has been completed.")
     app.run(host="0.0.0.0", port=8000, debug=True)
