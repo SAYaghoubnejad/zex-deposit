@@ -1,0 +1,17 @@
+services:
+  zsequencer:
+    container_name: zbtc-node
+    image: zellular/zbtc:latest
+    network_mode: host
+    ports:
+      - "${ZBTC_PORT}:${ZBTC_PORT}"
+    volumes:
+      - "${ZBTC_ECDSA_KEY_FILE}:/app/ecdsa_key.json"
+      - "${ZBTC_BLS_KEY_FILE}:/app/bls_key.json"
+      - "${ZBTC_DATA_PATH}:/app/data"
+    environment:
+      - ZBTC_ECDSA_KEY_FILE=/app/ecdsa_key.json
+      - ZBTC_BLS_KEY_FILE=/app/bls_key.json
+      - ZBTC_DATA_PATH=/app/data
+    env_file:
+      - .env

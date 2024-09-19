@@ -16,15 +16,15 @@ from zbtc_utils import (
     get_withdraw_tx,
 )
 from pyfrost.network.abstract import Validators, DataManager, NodesInfo as BaseNodeInfo
-from config import VALIDATED_IPS, ZBTC_CONTRACT_ADDRESS, MPC_ADDRESS, DepositType, generate_node_id
+from config import VALIDATED_IPS, CONTRACT_ADDRESS, MPC_ADDRESS, DepositType, DATA_PATH, generate_node_id
 from typing import Dict
 
 
 class NodeDataManager(DataManager):
     def __init__(
         self,
-        dkg_keys_file="./data/dkg_keys.json",
-        nonces_file="./data/nonces.json",
+        dkg_keys_file=f"{DATA_PATH}/dkg_keys.json",
+        nonces_file=f"{DATA_PATH}/nonces.json",
     ) -> None:
         super().__init__()
         self.dkg_keys_file = dkg_keys_file
@@ -120,7 +120,7 @@ class NodeValidators(Validators):
             fee = data["fee"]
             utxos = data["utxos"]
 
-            burned = get_burned(burn_tx_hash, web3, ZBTC_CONTRACT_ADDRESS)
+            burned = get_burned(burn_tx_hash, web3, CONTRACT_ADDRESS)
             logging.debug(f"Burn Info: {burned}")
             send_amount = burned["amount"]
             single_spend_txid = burned["singleSpendTx"]
@@ -233,15 +233,13 @@ class NodesInfo(BaseNodeInfo):
     def _convert_operators_to_nodes(self, operators):
         nodes = {}
         for operator in operators:
-            parsed_url = urlparse(operator["socket"])
-            zbtc_socket = f"http://{parsed_url.hostname}:{int(parsed_url.port) + 1}"
             node_info = {
                 "public_key": operator["id"],
                 "pubkeyG1_X": operator["pubkeyG1_X"],
                 "pubkeyG1_Y": operator["pubkeyG1_Y"],
                 "pubkeyG2_X": operator["pubkeyG2_X"],
                 "pubkeyG2_Y": operator["pubkeyG2_Y"],
-                "socket": zbtc_socket,
+                "socket": operator["socket"],
                 "stake": operator["stake"],
             }
             nodes[str(generate_node_id(operator["id"]))] = node_info

@@ -1,12 +1,37 @@
 import os
 import logging
 import sys
+import time
+
+from urllib.parse import urlparse
+from random import randbytes
 
 from flask import Flask
-from urllib.parse import urlparse
 from pyfrost.network.node import Node
 from abstracts import NodesInfo, NodeDataManager, NodeValidators
-from config import PRIVATE_KEY, NODE_ID
+from eigensdk.chainio.clients.builder import BuildAllConfig, build_all
+from config import PRIVATE_KEY, NODE_ID, PORT, ecdsa_private_key, bls_key_pair
+
+def register_operator(ecdsa_private_key, bls_key_pair) -> None:
+    rpc_node = os.getenv("ZBTC_RPC_NODE")
+    registry_coordinator = os.getenv("ZBTC_REGISTRY_COORDINATOR")
+    operator_state_retriever = os.getenv("ZBTC_OPERATOR_STATE_RETRIEVER")
+
+    config = BuildAllConfig(
+        eth_http_url=rpc_node,
+        registry_coordinator_addr=registry_coordinator,
+        operator_state_retriever_addr=operator_state_retriever,
+    )
+
+    clients = build_all(config, ecdsa_private_key)
+    clients.avs_registry_writer.register_operator_in_quorum_with_avs_registry_coordinator(
+        operator_ecdsa_private_key=ecdsa_private_key,
+        operator_to_avs_registration_sig_salt=randbytes(32),
+        operator_to_avs_registration_sig_expiry=int(time.time()) + 60,
+        bls_key_pair=bls_key_pair,
+        quorum_numbers=[0],
+        socket=os.getenv("ZBTC_REGISTER_SOCKET"),
+    )
 
 
 def run_node(node_id: int) -> None:
@@ -15,6 +40,13 @@ def run_node(node_id: int) -> None:
         f"nonces.json",
     )
     nodes_info = NodesInfo()
+    
+    if NODE_ID not in nodes_info.get_all_nodes():
+        if os.getenv("ZBTC_REGISTER_OPERATOR") == 'true':
+            register_operator(ecdsa_private_key, bls_key_pair)
+            print("Operator registration transaction sent.")
+        print("Operator not found in the nodes' list")
+        sys.exit()
     node = Node(
         data_manager,
         str(node_id),
@@ -27,9 +59,12 @@ def run_node(node_id: int) -> None:
     app = Flask(__name__)
     app.register_blueprint(node.blueprint, url_prefix="/pyfrost")
     parsed_url = urlparse(node_info["socket"])
+    assert (
+        int(PORT) == int(parsed_url.port)
+    ), f"The zbtc port in the .env file does not match the node port registered to Eigenlayer network."
     app.run(
         host="0.0.0.0",
-        port=int(parsed_url.port),
+        port=PORT,
         debug=False,
         threaded=True,
         use_reloader=False,

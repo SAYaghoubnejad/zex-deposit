@@ -3,11 +3,12 @@ import json
 import hashlib
 
 from enum import Enum
-import sys
 from dotenv import load_dotenv
+
 from web3 import Account
 from pyfrost.crypto_utils import code_to_pub
 from bitcoinutils.keys import PublicKey
+from eigensdk.crypto.bls import attestation
 
 load_dotenv()
 
@@ -45,15 +46,24 @@ ecdsa_key_store_path: str = os.getenv("ZBTC_ECDSA_KEY_FILE")
 ecdsa_key_password: str = os.getenv("ZBTC_ECDSA_KEY_PASSWORD")
 with open(ecdsa_key_store_path, 'r') as f:
     encrypted_json: str = json.loads(f.read())
+
+bls_key_store_path = os.getenv("ZBTC_BLS_KEY_FILE")
+bls_key_password = os.getenv("ZBTC_BLS_KEY_PASSWORD")
+bls_key_pair: attestation.KeyPair = attestation.KeyPair.read_from_file(bls_key_store_path, bls_key_password)
+
 ecdsa_private_key: str = Account.decrypt(encrypted_json, ecdsa_key_password)
-PRIVATE_KEY = int(Account.from_key(ecdsa_private_key).address.lower(),16)
+PRIVATE_KEY = int(ecdsa_private_key.hex(),16)
 NODE_ID = generate_node_id(Account.from_key(ecdsa_private_key).address.lower())
 
-ZBTC_CONTRACT_ADDRESS = os.getenv("ZBTC_CONTRACT_ADDRESS")
+CONTRACT_ADDRESS = os.getenv("ZBTC_CONTRACT_ADDRESS")
 FEE_AMOUNT = os.getenv("ZBTC_FEE_AMOUNT")
-
 BTC_NETWORK = os.getenv("ZBTC_BTC_NETWORK")
 BASE_URL = os.getenv("ZBTC_RPC_URL")
+PORT = os.getenv("ZBTC_PORT")
+
+DATA_PATH = os.getenv("ZBTC_DATA_PATH")
+if not os.path.exists(DATA_PATH):
+    os.makedirs(DATA_PATH)
 
 dkg_data = {}
 if os.path.exists("dkg_keys.json"):
@@ -66,7 +76,7 @@ for dkg in dkg_data.values():
         MPC_ADDRESS = get_taproot_address(dkg["dkg_public_key"]).to_string()
 
 
-# Define an enum class
+
 class DepositType(Enum):
     BRIDGE = 1
     WITHDRAW = 2

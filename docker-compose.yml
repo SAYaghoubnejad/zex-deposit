@@ -1,0 +1,6 @@
+services:
+  node:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: zellular/zbtc:latest
