@@ -41,8 +41,8 @@ def run_node(node_id: int) -> None:
     )
     nodes_info = NodesInfo()
     
-    if NODE_ID not in nodes_info.get_all_nodes():
-        if os.getenv("ZBTC_REGISTER_OPERATOR") == 'true':
+    if str(node_id) not in nodes_info.get_all_nodes():
+        if os.getenv("ZBTC_REGISTER_OPERATOR") == "true":
             register_operator(ecdsa_private_key, bls_key_pair)
             print("Operator registration transaction sent.")
         print("Operator not found in the nodes' list")
