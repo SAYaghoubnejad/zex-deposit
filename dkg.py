@@ -2,6 +2,7 @@ import json
 
 from pyfrost.crypto_utils import is_y_even, code_to_pub, Half_N
 from pyfrost.network.dkg import Dkg
+from pyfrost.network.sa import SA
 from abstracts import NodesInfo
 import logging
 import time
@@ -19,19 +20,26 @@ async def initiate_dkg(
     all_nodes = nodes_info.get_all_nodes()
     dkg = Dkg(nodes_info, default_timeout=50)
 
-
+    # Just added for requesting nonce to get the node state whether a node is live or not.
+    sa = SA(nodes_info, default_timeout=5)
+    
+    party = []
+    node_state_responses = await sa.request_nonces(all_nodes,1)
+    for node_id, data in node_state_responses.items():
+        if data["status"] == "SUCCESSFUL":
+            party.append(node_id)
     # Requesting DKG:
     now = timeit.default_timer()
-    dkg_key = await dkg.request_dkg(threshold, all_nodes, dkg_type)
+    dkg_key = await dkg.request_dkg(threshold, party, dkg_type)
     if dkg_type == "BTC":
         is_even = is_y_even(code_to_pub(dkg_key["public_key"]))
         while not is_even:
-            dkg_key = await dkg.request_dkg(threshold, all_nodes, dkg_type)
+            dkg_key = await dkg.request_dkg(threshold, party, dkg_type)
             is_even = is_y_even(code_to_pub(dkg_key["public_key"]))
     elif dkg_type == "ETH":
         is_gt_halfq = code_to_pub(dkg_key["public_key"]).x < Half_N
         while not is_gt_halfq:
-            dkg_key = await dkg.request_dkg(threshold, all_nodes, dkg_type)
+            dkg_key = await dkg.request_dkg(threshold, party, dkg_type)
             is_gt_halfq = code_to_pub(dkg_key["public_key"]).x < Half_N
     then = timeit.default_timer()
 
@@ -40,7 +48,7 @@ async def initiate_dkg(
 
     logging.info(f"DKG key: {dkg_key}")
     dkg_key["threshold"] = threshold
-
+    dkg_key["number_of_nodes"] = len(party)
     dkg_file_path = "."
     dkg_file_name = "dkgs.json"
     if not os.path.exists(f"{dkg_file_path}/{dkg_file_name}"):
@@ -51,7 +59,7 @@ async def initiate_dkg(
             data = json.load(file)
 
     data[dkg_name] = dkg_key
-
+    
     with open(f"{dkg_file_path}/{dkg_file_name}", "w") as file:
         json.dump(data, file, indent=4)
 

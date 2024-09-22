@@ -16,15 +16,16 @@ from zbtc_utils import (
     get_withdraw_tx,
 )
 from pyfrost.network.abstract import Validators, DataManager, NodesInfo as BaseNodeInfo
-from config import VALIDATED_IPS, CONTRACT_ADDRESS, MPC_ADDRESS, DepositType, DATA_PATH, generate_node_id
+from config import VALIDATED_IPS, CONTRACT_ADDRESS, MPC_ADDRESS,\
+     NODES_PUBLIC_KEYS_FILE, DepositType, generate_node_id
 from typing import Dict
 
 
 class NodeDataManager(DataManager):
     def __init__(
         self,
-        dkg_keys_file=f"{DATA_PATH}/dkg_keys.json",
-        nonces_file=f"{DATA_PATH}/nonces.json",
+        dkg_keys_file=f"./dkg_keys.json",
+        nonces_file=f"./nonces.json",
     ) -> None:
         super().__init__()
         self.dkg_keys_file = dkg_keys_file
@@ -194,7 +195,7 @@ class NodeValidators(Validators):
 class NodesInfo(BaseNodeInfo):
     prefix = "/pyfrost"
     subgraph_url = (
-        "https://api.studio.thegraph.com/query/85556/bls_apk_registry/version/latest"
+        os.getenv("ZBTC_SUBGRAPH_URL")
     )
 
     def __init__(self):
@@ -231,10 +232,11 @@ class NodesInfo(BaseNodeInfo):
             print(f"An error occurred: {e}")
 
     def _convert_operators_to_nodes(self, operators):
+        nodes_public_keys = self.get_file_content(NODES_PUBLIC_KEYS_FILE)
         nodes = {}
         for operator in operators:
             node_info = {
-                "public_key": operator["id"],
+                "public_key": nodes_public_keys(operator["id"]),
                 "pubkeyG1_X": operator["pubkeyG1_X"],
                 "pubkeyG1_Y": operator["pubkeyG1_Y"],
                 "pubkeyG2_X": operator["pubkeyG2_X"],
@@ -249,7 +251,19 @@ class NodesInfo(BaseNodeInfo):
         while not self._stop_event.is_set():
             time.sleep(interval)
             self.sync_with_subgraph()
-            
+
+    def get_file_content(self, source: str):
+        """Get the json contents of a file"""
+        if source.startswith('http://') or source.startswith('https://'):
+            response = requests.get(source)
+            response.raise_for_status()
+            return response.json()
+        elif os.path.isfile(source):
+            with open(source, 'r', encoding='utf-8') as file:
+                content = json.loads(file.read())
+            return content
+        else:
+            raise ValueError("The source provided is neither a valid URL nor a valid file path.")        
 
     def start_sync_thread(self):
         sync_interval = 60  # 1 minute

@@ -10,6 +10,11 @@ from pyfrost.crypto_utils import code_to_pub
 from bitcoinutils.keys import PublicKey
 from eigensdk.crypto.bls import attestation
 
+from fastecdsa import keys, curve
+from fastecdsa.encoding.sec1 import SEC1Encoder
+
+
+
 load_dotenv()
 
 def get_taproot_address(public_key):
@@ -53,7 +58,10 @@ bls_key_pair: attestation.KeyPair = attestation.KeyPair.read_from_file(bls_key_s
 
 ecdsa_private_key: str = Account.decrypt(encrypted_json, ecdsa_key_password)
 PRIVATE_KEY = int(ecdsa_private_key.hex(),16)
+
 NODE_ID = generate_node_id(Account.from_key(ecdsa_private_key).address.lower())
+
+NODES_PUBLIC_KEYS_FILE = os.getenv("ZBTC_NODES_PUBLIC_KEYS_FILE")
 
 CONTRACT_ADDRESS = os.getenv("ZBTC_CONTRACT_ADDRESS")
 FEE_AMOUNT = os.getenv("ZBTC_FEE_AMOUNT")

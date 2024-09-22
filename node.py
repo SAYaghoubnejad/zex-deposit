@@ -10,7 +10,7 @@ from flask import Flask
 from pyfrost.network.node import Node
 from abstracts import NodesInfo, NodeDataManager, NodeValidators
 from eigensdk.chainio.clients.builder import BuildAllConfig, build_all
-from config import PRIVATE_KEY, NODE_ID, PORT, ecdsa_private_key, bls_key_pair
+from config import PRIVATE_KEY, NODE_ID, PORT, DATA_PATH, ecdsa_private_key, bls_key_pair
 
 def register_operator(ecdsa_private_key, bls_key_pair) -> None:
     rpc_node = os.getenv("ZBTC_RPC_NODE")
@@ -36,8 +36,8 @@ def register_operator(ecdsa_private_key, bls_key_pair) -> None:
 
 def run_node(node_id: int) -> None:
     data_manager = NodeDataManager(
-        f"dkg_keys.json",
-        f"nonces.json",
+        f"{DATA_PATH}/dkg_keys.json",
+        f"{DATA_PATH}/nonces.json",
     )
     nodes_info = NodesInfo()
     
