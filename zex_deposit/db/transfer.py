@@ -40,7 +40,6 @@ async def to_finalized(
     finalized_block_number: BlockNumber,
     tx_hashes: list[str],
 ):
-    print(tx_hashes)
     query = {
         "block_number": {"$lte": finalized_block_number},
         "status": TransferStatus.PENDING.value,
