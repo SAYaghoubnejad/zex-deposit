@@ -4,7 +4,7 @@ from eth_typing import ChecksumAddress
 from web3 import Web3
 from pymongo import DESCENDING
 
-from config import (
+from deposit.config import (
     USER_DEPOSIT_BYTECODE_HASH,
     USER_DEPOSIT_FACTORY_ADDRESS,
     ZEX_BASE_URL,
