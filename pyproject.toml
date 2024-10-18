@@ -14,6 +14,7 @@ pymongo = "~=4.10.1"
 pydantic = "~=2.9.2"
 pyfrost = {git = "https://github.com/zellular-xyz/pyfrost.git"}
 eigensdk = {url = "https://github.com/zellular-xyz/eigensdk-python/archive/refs/tags/latest.zip"}
+sanic = "^24.6.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "~=8.3.3"
